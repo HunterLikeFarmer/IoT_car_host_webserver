@@ -1,0 +1,23 @@
+{
+  "name": "iot_car_host_webserver",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HunterLikeFarmer/IoT_car_host_webserver.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/HunterLikeFarmer/IoT_car_host_webserver/issues"
+  },
+  "homepage": "https://github.com/HunterLikeFarmer/IoT_car_host_webserver#readme",
+  "description": "",
+  "dependencies": {
+    "electron": "^40.8.0"
+  }
+}

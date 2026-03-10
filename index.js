@@ -4,6 +4,14 @@ document.onkeyup = resetKey;
 var server_port = 65432;
 var server_addr = "192.168.10.6";   // the IP address of your Raspberry PI
 
+function showServerMessage(msg) {
+    console.log("[server]", msg);
+    var output = document.getElementById("server_response");
+    if (output) {
+        output.innerHTML = msg;
+    }
+}
+
 function client(){
     
     const net = require('net');
@@ -18,14 +26,26 @@ function client(){
     
     // get the data from the server
     client.on('data', (data) => {
-        document.getElementById("bluetooth").innerHTML = data;
-        console.log(data.toString());
-        // STEP3: RECIEVE THE DATA AND DISPLAY IT IN THE HTML
-        var d = data.toString().split(",");
-        document.getElementById("direction").innerHTML = d[0];
-        document.getElementById("speed").innerHTML = d[1];
-        document.getElementById("distance").innerHTML = d[2];
-        document.getElementById("battery").innerHTML = d[3];
+        var response = data.toString().trim();
+        showServerMessage(response);
+
+        // STEP3: RECEIVE DATA AND DISPLAY IT IN THE HTML (if fields exist)
+        var d = response.split(";");
+        if (document.getElementById("direction") && d.length > 0) {
+            document.getElementById("direction").innerHTML = d[0];
+        }
+        if (document.getElementById("speed") && d.length > 1) {
+            document.getElementById("speed").innerHTML = d[1];
+        }
+        if (document.getElementById("red_light") && d.length > 1) {
+            document.getElementById("red_light").innerHTML = d[1];
+        }
+        if (document.getElementById("distance") && d.length > 2) {
+            document.getElementById("distance").innerHTML = d[2];
+        }
+        if (document.getElementById("battery") && d.length > 3) {
+            document.getElementById("battery").innerHTML = d[3];
+        }
         client.end();
         client.destroy();
     });
@@ -42,6 +62,12 @@ function send_data(input) {
     const net = require('net');
     const client = net.createConnection({ port: server_port, host: server_addr }, () => {
         client.write(`${input}\r\n`);
+    });
+
+    client.on('data', (data) => {
+        showServerMessage(data.toString().trim());
+        client.end();
+        client.destroy();
     });
 }
 

@@ -66,6 +66,7 @@ function send_data(input) {
 
     client.on('data', (data) => {
         showServerMessage(data.toString().trim());
+        client();
         client.end();
         client.destroy();
     });
@@ -96,6 +97,7 @@ function updateKey(e) {
         document.getElementById("rightArrow").style.color = "green";
         send_data("68");
     }
+    update_data();
 }
 
 // reset the key to the start state 
@@ -112,8 +114,9 @@ function resetKey(e) {
 
 // update data for every 50ms
 function update_data(){
-    setInterval(function(){
-        // get image from python server
-        client();
-    }, 50);
+    // setInterval(function(){
+    //     // get image from python server
+    //     client();
+    // }, 50);
+    client();
 }

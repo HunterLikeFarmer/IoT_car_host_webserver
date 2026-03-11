@@ -32,19 +32,18 @@ function client(){
         // STEP3: RECEIVE DATA AND DISPLAY IT IN THE HTML (if fields exist)
         var d = response.split(";");
         if (document.getElementById("direction") && d.length > 0) {
-            document.getElementById("direction").innerHTML = d[0];
-        }
-        if (document.getElementById("speed") && d.length > 1) {
-            document.getElementById("speed").innerHTML = d[1];
+            document.getElementById("direction").innerHTML = d[0] + "°";
         }
         if (document.getElementById("red_light") && d.length > 1) {
-            document.getElementById("red_light").innerHTML = d[1];
+            let isRedLight = d[1].toLowerCase() === 'true';
+            document.getElementById("red_light").innerHTML = isRedLight ? "DETECTED" : "False";
+            document.getElementById("red_light").style.color = isRedLight ? "red" : "black";
         }
         if (document.getElementById("distance") && d.length > 2) {
-            document.getElementById("distance").innerHTML = d[2];
+            document.getElementById("distance").innerHTML = parseFloat(d[2]).toFixed(2) + " m";
         }
         if (document.getElementById("battery") && d.length > 3) {
-            document.getElementById("battery").innerHTML = d[3];
+            document.getElementById("battery").innerHTML = parseFloat(d[3]).toFixed(2) + "%";
         }
         client.end();
         client.destroy();
@@ -65,17 +64,39 @@ function send_data(input) {
     });
 
     client.on('data', (data) => {
-        showServerMessage(data.toString().trim());
-        client();
+        var response = data.toString().trim();
+        showServerMessage(response);
+        
+        var d = response.split(";");
+        if (document.getElementById("direction") && d.length > 0) {
+            document.getElementById("direction").innerHTML = d[0];
+        }
+        if (document.getElementById("red_light") && d.length > 1) {
+            let isRedLight = d[1].toLowerCase() === 'true';
+            document.getElementById("red_light").innerHTML = isRedLight ? "DETECTED" : "False";
+            document.getElementById("red_light").style.color = isRedLight ? "red" : "black";
+        }
+        if (document.getElementById("distance") && d.length > 2) {
+            document.getElementById("distance").innerHTML = parseFloat(d[2]).toFixed(2) + " m";
+        }
+        if (document.getElementById("battery") && d.length > 3) {
+            document.getElementById("battery").innerHTML = parseFloat(d[3]).toFixed(2) + "%";
+        }
+
         client.end();
         client.destroy();
     });
 }
 
 // for detecting which key is been pressed w,a,s,d
+var currentKey = null; // Added to prevent spamming server if key is held down
+
 function updateKey(e) {
 
     e = e || window.event;
+
+    if (currentKey === e.keyCode) return; 
+    currentKey = e.keyCode;
 
     if (e.keyCode == '87') {
         // up (w)
@@ -97,26 +118,17 @@ function updateKey(e) {
         document.getElementById("rightArrow").style.color = "green";
         send_data("68");
     }
-    update_data();
+
 }
 
 // reset the key to the start state 
 function resetKey(e) {
 
     e = e || window.event;
+    currentKey = null; // Release key lock
 
     document.getElementById("upArrow").style.color = "grey";
     document.getElementById("downArrow").style.color = "grey";
     document.getElementById("leftArrow").style.color = "grey";
     document.getElementById("rightArrow").style.color = "grey";
-}
-
-
-// update data for every 50ms
-function update_data(){
-    // setInterval(function(){
-    //     // get image from python server
-    //     client();
-    // }, 50);
-    client();
 }

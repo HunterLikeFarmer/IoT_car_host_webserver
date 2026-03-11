@@ -12,51 +12,6 @@ function showServerMessage(msg) {
     }
 }
 
-function client(){
-    
-    const net = require('net');
-    var input = document.getElementById("message").value;
-
-    // Open a TCP connection from the Electron renderer to the Pi server.
-    const client = net.createConnection({ port: server_port, host: server_addr }, () => {
-        // Transmit user-entered text followed by CRLF so the server can read a full command line.
-        client.write(`${input}\r\n`);
-    });
-    
-    // Receive one status payload from the server for this request.
-    client.on('data', (data) => {
-        var response = data.toString().trim();
-        showServerMessage(response);
-
-        // Expected format: "direction;redLight;distance;battery".
-        // Split the payload, then map each field into its matching UI element.
-        var d = response.split(";");
-        if (document.getElementById("direction") && d.length > 0) {
-            document.getElementById("direction").innerHTML = d[0] + "°";
-        }
-        if (document.getElementById("red_light") && d.length > 1) {
-            let isRedLight = d[1].toLowerCase() === 'true';
-            document.getElementById("red_light").innerHTML = isRedLight ? "DETECTED" : "False";
-            document.getElementById("red_light").style.color = isRedLight ? "red" : "black";
-        }
-        if (document.getElementById("distance") && d.length > 2) {
-            document.getElementById("distance").innerHTML = parseFloat(d[2]).toFixed(2) + " m";
-        }
-        if (document.getElementById("battery") && d.length > 3) {
-            document.getElementById("battery").innerHTML = parseFloat(d[3]).toFixed(2) + "%";
-        }
-        // Close this socket after rendering the latest values.
-        client.end();
-        client.destroy();
-    });
-
-    client.on('end', () => {
-        console.log('disconnected from server');
-    });
-
-
-}
-
 // Send data to teh server
 function send_data(input) {
     const net = require('net');
